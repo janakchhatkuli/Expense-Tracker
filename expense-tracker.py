@@ -12,6 +12,7 @@ def load_expense():
     if os.path.exists(expense_file):
         with open(expense_file,"r") as file :
             return json.load(file)
+    return []
 
 def save_expense(expense):
     with open(expense_file,"w") as file:
@@ -34,10 +35,11 @@ def update_expense(ID,new_description,new_amount):
     expense = load_expense()
     for exp in expense:
         if exp["ID"] == ID:
-            exp["description"] == new_description
-            exp["amount"] == new_amount
+            exp["description"] = new_description
+            exp["amount"] = new_amount
             #exp["updated_time"] == time.ctime(time.time())
             print(f"Expense updated successfully (ID: {ID})")
+    save_expense(expense)
 
 def delete_expense(ID):
     expense = load_expense()
@@ -57,16 +59,18 @@ def view_expense():
         ])
     headers=["ID","Date","Description","Amount"]
 
-    print(tabulate(expense_data,headers=headers,tablefmt="simple"))
+    print(tabulate(expense_data,headers=headers,tablefmt="plain"))
 
 def summary_of_expense(month=None):
     expense = load_expense()
     if month != None:
-        expense= [exp for exp in expense if (datetime.strptime(exp["add_time"],"%Y-%m-%d")).strftime("%B") == month]
-        print(f"Total expenses for {month}: ${expense["amount"].sum()}")
+        expense= [exp for exp in expense if (datetime.strptime(exp["added_time"],"%a %b %d %H:%M:%S %Y")).strftime("%B") == month]
+        total = sum((exp["amount"]) for exp in expense)
+        print(f"Total expenses for {month}: ${total}")
     
     else:
-        print(f"Total expenses : ${expense["amount"].sum()}")
+        total = sum((exp["amount"]) for exp in expense)
+        print(f"Total expenses : ${total}")
 
 
 def main():
@@ -89,7 +93,7 @@ def main():
     
 
     parser_add = subparsers.add_parser("summary", help="Total of all the expenses or filter by month")
-    parser_add.add_argument("--month",type=int,required = False,help="Filter expense my that month")
+    parser_add.add_argument("--month",type=str,required = False,help="Filter expense my that month")
     
     args = parser.parse_args()
 
@@ -102,6 +106,8 @@ def main():
     if args.command == "list":
         view_expense()
     if args.command == "summary":
-        summary_of_expense(month)
+        summary_of_expense(args.month)
 
     
+if __name__ == "__main__":
+    main()

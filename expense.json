@@ -1,0 +1,14 @@
+[
+     {
+          "ID": 1,
+          "description": "Food",
+          "added_time": "Thu May 15 21:07:24 2025",
+          "amount": 30
+     },
+     {
+          "ID": 2,
+          "description": "Electricity",
+          "added_time": "Thu May 15 21:09:01 2025",
+          "amount": 50
+     }
+]
