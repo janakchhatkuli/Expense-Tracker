@@ -4,6 +4,16 @@ import json
 import time
 import argparse
 from datetime import datetime
+import joblib
+
+
+model = joblib.load("expense_classifier.pkl")
+label_encoder = joblib.load("label_encoder.pkl")
+
+def predict_category(text):
+    pred =model.predict([text])[0]
+    return label_encoder.inverse_transform([pred])[0]
+
 
 
 expense_file = "expense.json"
@@ -23,7 +33,7 @@ def add_expense(description,amount):
     new_expense={
         "ID" : len(expense)+1,
         "description" : description,
-        #"category":"",
+        "category":predict_category(description),
         "added_time":time.ctime(time.time()),
         "amount":amount
     }
@@ -36,6 +46,7 @@ def update_expense(ID,new_description,new_amount):
     for exp in expense:
         if exp["ID"] == ID:
             exp["description"] = new_description
+            exp["category"] = predict_category(exp["description"])
             exp["amount"] = new_amount
             #exp["updated_time"] == time.ctime(time.time())
             print(f"Expense updated successfully (ID: {ID})")
@@ -55,9 +66,10 @@ def view_expense():
             exp.get("ID","N/A"),
             exp.get("added_time","N/A"),
             exp.get("description","N/A"),
+            exp.get("category","N/A"),
             exp.get("amount","N/A")
         ])
-    headers=["ID","Date","Description","Amount"]
+    headers=["ID","Date","Description","Caregory","Amount"]
 
     print(tabulate(expense_data,headers=headers,tablefmt="plain"))
 
